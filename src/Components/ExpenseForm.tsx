@@ -1,95 +1,93 @@
-import { useState } from "react";
 import "./ExpenseForm.css";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-type Expense = {
-  description: string;
-  amount: string;   
-  date: string;     
-  category: string;
-};
+const expenseSchema = z.object({
+  description: z.string().min(1, "Description is required"),
+  amount: z
+    .number({ invalid_type_error: "Enter a valid amount" })
+    .positive("Amount must be greater than 0"),
+  date: z.string().min(1, "Pick a date"),
+  category: z.string().min(1, "Select a category"),
+  paymentMode: z.enum(["Card", "Cash", "UPI"], {
+    required_error: "Select a payment mode",
+  }),
+});
 
-export default function ExpenseForm({ onSubmit }: { onSubmit?: (e: Expense) => void }) 
-{
-  const [form, setForm] = useState<Expense>({
-    description: "",
-    amount: "",
-    date: "",
-    category: "",
+type ExpenseFormData = z.infer<typeof expenseSchema>;
+
+export default function ExpenseForm({
+  onSubmit,
+}: {
+  onSubmit?: (e: ExpenseFormData) => void;
+}) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ExpenseFormData>({
+    resolver: zodResolver(expenseSchema),
+    defaultValues: {
+      description: "",
+      amount: 0,
+      date: "",
+      category: "",
+      paymentMode: undefined as unknown as ExpenseFormData["paymentMode"],
+    },
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) {
-    const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
-  }
-
-  function validate() 
-  {
-    const next: Record<string, string> = {};
-    if (!form.description.trim()) next.description = "Required";
-    if (!form.amount || Number(form.amount) <= 0) next.amount = "Enter a positive amount";
-    if (!form.date) next.date = "Pick a date";
-    if (!form.category) next.category = "Select a category";
-    setErrors(next);
-    return Object.keys(next).length === 0;
-  }
-
-  function handleSubmit(e: React.FormEvent) 
-  {
-    e.preventDefault();
-    if (!validate()) return;
-    onSubmit?.(form);
-    // clear after submit
-    setForm({ description: "", amount: "", date: "", category: "" });
-  }
+  const submit = (data: ExpenseFormData) => {
+    onSubmit?.(data);
+    reset();
+  };
 
   return (
     <div className="card">
       <div className="card__header">Add New Expense</div>
-      <form className="form" onSubmit={handleSubmit} noValidate>
+
+      <form className="form" onSubmit={handleSubmit(submit)} noValidate>
+        {/* Description */}
         <label className="field">
           <span>Description</span>
           <input
-            name="description"
             placeholder="e.g. Weekly Groceries"
-            value={form.description}
-            onChange={handleChange}
+            {...register("description")}
           />
-          {errors.description && <small className="error">{errors.description}</small>}
+          {errors.description && (
+            <small className="error">{errors.description.message}</small>
+          )}
         </label>
 
+        {/* Amount + Date */}
         <div className="row">
           <label className="field">
             <span>Amount ($)</span>
             <input
-              name="amount"
               type="number"
               step="0.01"
               placeholder="0.00"
-              value={form.amount}
-              onChange={handleChange}
+              {...register("amount", { valueAsNumber: true })}
             />
-            {errors.amount && <small className="error">{errors.amount}</small>}
+            {errors.amount && (
+              <small className="error">{errors.amount.message}</small>
+            )}
           </label>
 
           <label className="field">
             <span>Date</span>
-            <input
-              name="date"
-              type="date"
-              value={form.date}
-              onChange={handleChange}
-            />
-            {errors.date && <small className="error">{errors.date}</small>}
+            <input type="date" {...register("date")} />
+            {errors.date && (
+              <small className="error">{errors.date.message}</small>
+            )}
           </label>
         </div>
 
+        {/* Category */}
         <label className="field">
           <span>Category</span>
-          <select name="category" value={form.category} onChange={handleChange}>
+          <select defaultValue="" {...register("category")}>
             <option value="" disabled>
               Select a category
             </option>
@@ -99,10 +97,30 @@ export default function ExpenseForm({ onSubmit }: { onSubmit?: (e: Expense) => v
             <option>Entertainment</option>
             <option>Other</option>
           </select>
-          {errors.category && <small className="error">{errors.category}</small>}
+          {errors.category && (
+            <small className="error">{errors.category.message}</small>
+          )}
         </label>
 
-        <button className="btn" type="submit">Save Expense</button>
+        {/* Payment Mode (NEW) */}
+        <label className="field">
+          <span>Payment mode</span>
+          <select defaultValue="" {...register("paymentMode")}>
+            <option value="" disabled>
+              Select payment mode
+            </option>
+            <option value="Card">Card</option>
+            <option value="Cash">Cash</option>
+            <option value="UPI">UPI</option>
+          </select>
+          {errors.paymentMode && (
+            <small className="error">{errors.paymentMode.message}</small>
+          )}
+        </label>
+
+        <button className="btn" type="submit">
+          Save Expense
+        </button>
       </form>
     </div>
   );
