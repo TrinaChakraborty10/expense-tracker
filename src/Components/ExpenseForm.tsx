@@ -1,4 +1,4 @@
-import "./ExpenseForm.css";
+// import "./ExpenseForm.css";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,85 +43,120 @@ export default function ExpenseForm({
     reset();
   };
 
-  return (
-    <div className="card">
-      <div className="text-4xl">Add New Expense</div>
-
-      <form className="form" onSubmit={handleSubmit(submit)} noValidate>
+return (
+  <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+    <div className="w-full max-w-md rounded-xl bg-card p-6 shadow-lg">
+      <h1 className="mb-6 text-2xl font-bold text-center">
+        Add New Expense
+      </h1>
+  
+      <form
+         className="space-y-4"
+         onSubmit={handleSubmit(submit)}
+         noValidate
+      >
         {/* Description */}
-        <label className="field">
-          <span>Description</span>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium">Description</label>
           <input
+            className="rounded-md border border-border bg-input px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
             placeholder="e.g. Weekly Groceries"
             {...register("description")}
           />
           {errors.description && (
-            <small className="error">{errors.description.message}</small>
+            <p className="text-sm text-destructive">
+              {errors.description.message}
+            </p>
           )}
-        </label>
-
+        </div>
+  
         {/* Amount + Date */}
-        <div className="row">
-          <label className="field">
-            <span>Amount ($)</span>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">Amount ($)</label>
             <input
               type="number"
               step="0.01"
+              className="rounded-md border border-border bg-input px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="0.00"
               {...register("amount", { valueAsNumber: true })}
             />
             {errors.amount && (
-              <small className="error">{errors.amount.message}</small>
+              <p className="text-sm text-destructive">
+                {errors.amount.message}
+              </p>
             )}
-          </label>
-
-          <label className="field">
-            <span>Date</span>
-            <input type="date" {...register("date")} />
-            {errors.date && (
-              <small className="error">{errors.date.message}</small>
+            </div>
+  
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium">Date</label>
+              <input
+                type="date"
+                className="rounded-md border border-border bg-input px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                {...register("date")}
+              />
+              {errors.date && (
+                <p className="text-sm text-destructive">
+                  {errors.date.message}
+                </p>
+              )}
+            </div>
+          </div>
+  
+          {/* Category */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">Category</label>
+            <select
+              defaultValue=""
+              className="rounded-md border border-border bg-input px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+              {...register("category")}
+            >
+              <option value="" disabled>
+                Select a category
+              </option>
+              <option>Groceries</option>
+              <option>Transport</option>
+              <option>Utilities</option>
+              <option>Entertainment</option>
+              <option>Other</option>
+            </select>
+            {errors.category && (
+              <p className="text-sm text-destructive">
+                {errors.category.message}
+              </p>
             )}
-          </label>
-        </div>
-
-        {/* Category */}
-        <label className="field">
-          <span>Category</span>
-          <select defaultValue="" {...register("category")}>
-            <option value="" disabled>
-              Select a category
-            </option>
-            <option>Groceries</option>
-            <option>Transport</option>
-            <option>Utilities</option>
-            <option>Entertainment</option>
-            <option>Other</option>
-          </select>
-          {errors.category && (
-            <small className="error">{errors.category.message}</small>
-          )}
-        </label>
-
-        {/* Payment Mode (NEW) */}
-        <label className="field">
-          <span>Payment mode</span>
-          <select defaultValue="" {...register("paymentMode")}>
-            <option value="" disabled>
-              Select payment mode
-            </option>
-            <option value="Card">Card</option>
-            <option value="Cash">Cash</option>
-            <option value="UPI">UPI</option>
-          </select>
-          {errors.paymentMode && (
-            <small className="error">{errors.paymentMode.message}</small>
-          )}
-        </label>
-
-        <button className="btn" type="submit">
-          Save Expense
-        </button>
-      </form>
+          </div>
+  
+          {/* Payment Mode */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">Payment Mode</label>
+            <select
+              defaultValue=""
+              className="rounded-md border border-border bg-input px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+              {...register("paymentMode")}
+            >
+              <option value="" disabled>
+                Select payment mode
+              </option>
+              <option value="Card">Card</option>
+              <option value="Cash">Cash</option>
+              <option value="UPI">UPI</option>
+            </select>
+            {errors.paymentMode && (
+              <p className="text-sm text-destructive">
+                {errors.paymentMode.message}
+              </p>
+            )}
+          </div>
+  
+          <button
+            type="submit"
+            className="mt-4 w-full rounded-md bg-primary py-2 font-semibold text-primary-foreground hover:opacity-90"
+          >
+            Save Expense
+          </button>
+        </form>
+      </div>
     </div>
   );
-}
+  
