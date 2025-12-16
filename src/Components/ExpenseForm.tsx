@@ -45,7 +45,7 @@ export default function ExpenseForm({
 
   return (
     <div className="card">
-      <div className="card__header">Add New Expense</div>
+      <div className="text-4xl">Add New Expense</div>
 
       <form className="form" onSubmit={handleSubmit(submit)} noValidate>
         {/* Description */}
